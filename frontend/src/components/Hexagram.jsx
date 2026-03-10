@@ -76,6 +76,10 @@ function Hexagram({ hexagram, changingLine, label }) {
           <span>上卦: {hexagram.upper_trigram?.name}（{hexagram.upper_trigram?.element}）</span>
           <span>下卦: {hexagram.lower_trigram?.name}（{hexagram.lower_trigram?.element}）</span>
         </div>
+        <div className="hexagram-trigrams">
+          <span>上卦の徳: {hexagram.upper_trigram?.attribute} / 家族象: {hexagram.upper_trigram?.family}</span>
+          <span>下卦の徳: {hexagram.lower_trigram?.attribute} / 家族象: {hexagram.lower_trigram?.family}</span>
+        </div>
         <div className="hexagram-meaning">{hexagram.meaning}</div>
       </div>
     </div>
@@ -94,11 +98,15 @@ Hexagram.propTypes = {
       name: PropTypes.string,
       element: PropTypes.string,
       symbol: PropTypes.string,
+      attribute: PropTypes.string,
+      family: PropTypes.string,
     }),
     lower_trigram: PropTypes.shape({
       name: PropTypes.string,
       element: PropTypes.string,
       symbol: PropTypes.string,
+      attribute: PropTypes.string,
+      family: PropTypes.string,
     }),
   }),
   changingLine: PropTypes.number,

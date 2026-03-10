@@ -18,3 +18,9 @@ nohup.out
 
 # OS
 .DS_Store
+
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example

@@ -185,12 +185,22 @@ class TestAPI:
         """/api/divine のレスポンスが必要なフィールドを持つこと"""
         resp = client.post("/api/divine")
         data = resp.get_json()
+        assert "id" in data
+        assert "person_name" in data
+        assert "question" in data
+        assert "category" in data
+        assert "created_at" in data
         assert "lower_number" in data
         assert "upper_number" in data
         assert "changing_line" in data
         assert "changing_line_name" in data
         assert "honke" in data
         assert "shike" in data
+        assert "ai_response" in data
+        assert "feedback" in data
+        assert "self_score" in data
+        assert "evaluated_at" in data
+        assert "hexagram_summary" in data
 
     def test_divine_lower_upper_range(self, client):
         """/api/divine の下卦・上卦番号が1〜8の範囲であること（10回試行）"""
@@ -233,6 +243,115 @@ class TestAPI:
         resp = client.post("/api/divine")
         data = resp.get_json()
         assert data["changing_line_name"] in line_names.values()
+
+    def test_divinations_list_returns_array(self, client):
+        """/api/divinations が配列を返すこと"""
+        client.post("/api/divine", json={"person_name": "テスト", "question": "今後は?"})
+        resp = client.get("/api/divinations")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+
+    def test_update_feedback(self, client):
+        """/api/divinations/<id> でフィードバック更新できること"""
+        created = client.post("/api/divine", json={"person_name": "テスト", "question": "検証"}).get_json()
+        divination_id = created["id"]
+        resp = client.patch(f"/api/divinations/{divination_id}", json={"feedback": "実際に近かった"})
+        assert resp.status_code == 200
+        updated = resp.get_json()
+        assert updated["id"] == divination_id
+        assert updated["feedback"] == "実際に近かった"
+
+    def test_update_self_score(self, client):
+        """self_score(1-5) を更新できること"""
+        created = client.post("/api/divine", json={"person_name": "スコア", "question": "一致度"}).get_json()
+        divination_id = created["id"]
+        resp = client.patch(f"/api/divinations/{divination_id}", json={"self_score": 4})
+        assert resp.status_code == 200
+        updated = resp.get_json()
+        assert updated["self_score"] == 4
+        assert updated["evaluated_at"] is not None
+
+    def test_update_self_score_invalid(self, client):
+        """self_score が範囲外なら 400 になること"""
+        created = client.post("/api/divine", json={"person_name": "スコア", "question": "一致度"}).get_json()
+        divination_id = created["id"]
+        resp = client.patch(f"/api/divinations/{divination_id}", json={"self_score": 9})
+        assert resp.status_code == 400
+
+    def test_divinations_search_by_name_and_keyword(self, client):
+        """名前・キーワード検索が動作すること"""
+        client.post("/api/divine", json={"person_name": "山田", "question": "転職の時期"})
+        client.post("/api/divine", json={"person_name": "佐藤", "question": "恋愛運"})
+
+        resp = client.get("/api/divinations?person_name=山田&keyword=転職")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert len(data) >= 1
+        assert all("山田" in d["person_name"] for d in data)
+        assert all("転職" in d["question"] for d in data)
+
+    def test_divinations_export_csv(self, client):
+        """CSVエクスポートが取得できること"""
+        client.post("/api/divine", json={"person_name": "CSV", "question": "検証"})
+        resp = client.get("/api/divinations/export.csv")
+        assert resp.status_code == 200
+        assert "text/csv" in resp.content_type
+        body = resp.get_data(as_text=True)
+        assert "person_name" in body
+        assert "category" in body
+        assert "question" in body
+        assert "hexagram_summary" in body
+        assert "evaluated_at" in body
+        assert "ai_response_short" in body
+
+    def test_divinations_category_inference(self, client):
+        """質問接頭辞からカテゴリが推定されること"""
+        resp = client.post("/api/divine", json={"person_name": "カテゴリ", "question": "【恋愛】 この先どうなる?"})
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data["category"] == "恋愛"
+
+    def test_divinations_score_by_category(self, client):
+        """カテゴリ別一致度APIが集計結果を返すこと"""
+        a = client.post(
+            "/api/divine",
+            json={"person_name": "A", "question": "【仕事】 進路", "concern_type": "仕事"},
+        ).get_json()
+        b = client.post(
+            "/api/divine",
+            json={"person_name": "B", "question": "【恋愛】 関係", "concern_type": "恋愛"},
+        ).get_json()
+
+        client.patch(f"/api/divinations/{a['id']}", json={"self_score": 4})
+        client.patch(f"/api/divinations/{b['id']}", json={"self_score": 5})
+
+        resp = client.get("/api/divinations/stats/categories")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert isinstance(data, list)
+        assert len(data) >= 2
+        assert all("category" in row for row in data)
+        assert all("avg_score" in row for row in data)
+
+    def test_divinations_score_trend(self, client):
+        """週次トレンドAPIが評価済みデータを返すこと"""
+        created = client.post("/api/divine", json={"person_name": "トレンド", "question": "推移"}).get_json()
+        did = created["id"]
+        client.patch(f"/api/divinations/{did}", json={"self_score": 5})
+
+        resp = client.get("/api/divinations/stats/trend?group=weekly")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+        assert "period" in data[0]
+        assert "avg_score" in data[0]
+
+    def test_divinations_score_trend_invalid_group(self, client):
+        resp = client.get("/api/divinations/stats/trend?group=daily")
+        assert resp.status_code == 400
 
 
 # ─────────────────── get_line_names のテスト ───────────────────

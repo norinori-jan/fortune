@@ -27,6 +27,7 @@ body {
   color: var(--color-text);
   font-family: 'Noto Serif JP', 'Georgia', serif;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ─── アプリ全体レイアウト ─── */
@@ -34,6 +35,12 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+@supports (min-height: 100dvh) {
+  .app {
+    min-height: 100dvh;
+  }
 }
 
 /* ─── ヘッダー ─── */
@@ -68,6 +75,54 @@ body {
   width: 100%;
 }
 
+.mode-switch {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.mode-button {
+  border: 1px solid rgba(245, 197, 24, 0.4);
+  background: transparent;
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.mode-button.active {
+  background: rgba(245, 197, 24, 0.2);
+  color: var(--color-gold);
+}
+
+.input-grid {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.input-label {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.text-input {
+  width: 100%;
+  border: 1px solid rgba(245, 197, 24, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text);
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.text-area {
+  min-height: 90px;
+  resize: vertical;
+}
+
 /* ─── 占いボタンエリア ─── */
 .divine-section {
   text-align: center;
@@ -80,6 +135,7 @@ body {
   border: none;
   padding: 1rem 3rem;
   font-size: 1.4rem;
+  min-height: 52px;
   font-family: inherit;
   border-radius: 50px;
   cursor: pointer;
@@ -331,24 +387,361 @@ body {
   color: var(--color-text);
 }
 
+.history-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.history-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.history-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.history-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.history-card {
+  border: 1px solid rgba(245, 197, 24, 0.15);
+  border-radius: 10px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.history-collapse {
+  border-radius: 10px;
+}
+
+.history-summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.2rem 0.1rem 0.6rem;
+}
+
+.history-summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-summary-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.history-summary-category {
+  color: var(--color-gold);
+  font-size: 0.83rem;
+  margin-top: 0.25rem;
+}
+
+.history-summary-sub {
+  color: var(--color-text);
+  font-size: 0.92rem;
+  margin-top: 0.4rem;
+}
+
+.history-summary-meta {
+  color: var(--color-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  gap: 0.7rem;
+  margin-top: 0.3rem;
+}
+
+.history-collapse-body {
+  border-top: 1px solid rgba(245, 197, 24, 0.15);
+  padding-top: 0.8rem;
+}
+
+.analysis-panel .small-button {
+  margin-top: 0;
+}
+
+.analysis-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.kpi-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(245, 197, 24, 0.2);
+  border-radius: 10px;
+  padding: 0.7rem;
+}
+
+.kpi-label {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.kpi-value {
+  color: var(--color-gold);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 0.15rem;
+}
+
+.trend-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.section-subtitle {
+  color: var(--color-text);
+  font-size: 1rem;
+  margin: 1rem 0 0.6rem;
+}
+
+.trend-row {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 0.6rem;
+}
+
+.trend-head {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  font-size: 0.9rem;
+  gap: 0.5rem;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.trend-bar-wrap {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.trend-bar {
+  background: linear-gradient(90deg, #f5c518, #e94560);
+  border-radius: 999px;
+  height: 100%;
+}
+
+.active-chip {
+  background: rgba(245, 197, 24, 0.22);
+}
+
+.bottom-nav {
+  display: none;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  gap: 0.7rem;
+}
+
+.history-time {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.history-question {
+  margin-bottom: 0.8rem;
+}
+
+.history-hexagrams {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-bottom: 0.8rem;
+}
+
+.history-feedback {
+  margin-top: 0.8rem;
+}
+
+.small-button {
+  margin-top: 0.5rem;
+  border: 1px solid rgba(245, 197, 24, 0.4);
+  background: rgba(245, 197, 24, 0.12);
+  color: var(--color-gold);
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  min-height: 44px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.small-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.history-message {
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.history-ai-text {
+  white-space: pre-wrap;
+}
+
+.score-select {
+  max-width: 180px;
+}
+
+.history-card .score-select {
+  max-width: 100%;
+}
+
 /* ─── フッター ─── */
 .app-footer {
   text-align: center;
   padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   color: var(--color-text-muted);
   font-size: 0.8rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+@media (max-width: 900px) {
+  .app-main {
+    max-width: 100%;
+    padding: 1.25rem 0.9rem;
+  }
+
+  .history-hexagrams {
+    grid-template-columns: 1fr;
+  }
+
+  .history-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .history-toolbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 /* ─── レスポンシブ ─── */
 @media (max-width: 600px) {
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    backdrop-filter: blur(6px);
+    padding-top: calc(0.9rem + env(safe-area-inset-top));
+    padding-bottom: 0.9rem;
+  }
+
+  .app-main {
+    padding-top: 1rem;
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  }
+
   .app-title {
     font-size: 1.8rem;
   }
 
+  .app-subtitle {
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+  }
+
+  .mode-switch {
+    display: none;
+  }
+
+  .mode-button {
+    width: 100%;
+  }
+
   .divine-button {
-    font-size: 1.1rem;
-    padding: 0.8rem 2rem;
+    font-size: 1.05rem;
+    padding: 0.9rem 1.25rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .section-title {
+    font-size: 1.05rem;
+  }
+
+  .result-section {
+    padding: 1rem;
+  }
+
+  .history-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-toolbar-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .history-toolbar-actions .small-button {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .bottom-nav {
+    background: rgba(22, 33, 62, 0.92);
+    border-top: 1px solid rgba(245, 197, 24, 0.25);
+    bottom: 0;
+    display: grid;
+    gap: 0.4rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    left: 0;
+    padding: 0.55rem 0.7rem calc(0.55rem + env(safe-area-inset-bottom));
+    position: fixed;
+    right: 0;
+    z-index: 45;
+  }
+
+  .bottom-nav-button {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(245, 197, 24, 0.25);
+    border-radius: 10px;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
+  .bottom-nav-button.active {
+    background: rgba(245, 197, 24, 0.2);
+    color: var(--color-gold);
+  }
+
+  .changing-line-info {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .hexagram-lines {
@@ -358,5 +751,29 @@ body {
   .line {
     width: 110px;
   }
+}
+
+@media (max-width: 420px) {
+  .app-title {
+    font-size: 1.55rem;
+  }
+
+  .app-main {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .history-toolbar-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .hexagram-card {
+    padding: 0.9rem;
+  }
+}
+
+/* iOS Safari: キーボード表示中は下部ナビを隠して入力被りを回避 */
+body.keyboard-open .bottom-nav {
+  display: none;
 }
 

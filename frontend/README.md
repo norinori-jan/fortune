@@ -1,16 +1,33 @@
-# React + Vite
+# frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 開発
 
-Currently, two official plugins are available:
+```bash
+npm install
+npm run dev
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+開発サーバーは通常 http://127.0.0.1:5173 で起動します。
 
-## React Compiler
+## ビルド
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm run build
+```
 
-## Expanding the ESLint configuration
+生成物は frontend/dist に出力されます。
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 環境変数
+
+frontend/.env.example を frontend/.env にコピーして使います。
+
+- VITE_API_BASE_URL
+	- 既定: 空文字
+	- 空文字のときは相対パス /api/divine にアクセスします（Vite proxy 前提）
+	- 静的配信や別ドメイン環境では、例として http://localhost:5000 を設定してください
+
+## オフライン利用
+
+- 取得済みの履歴・分析データは端末の localStorage に自動保存されます。
+- ネットワーク断時は保存済みキャッシュを表示します。
+- 履歴のフィードバック更新はオフライン時にローカルキューへ積み、オンライン復帰時に再同期します。
